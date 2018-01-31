@@ -1,0 +1,13 @@
+// Ceci est un exemple de fichier d'hosts Modulight
+// Les commentaires seront gérés, et de type C pour raisons pratiques
+
+// Les lignes vides sont ignorées, afin de pouvoir rendre le fichier clair
+
+localhost // La première ligne contient la machine par défaut
+
+a 0 host1 // L'instance 0 du module a se lancera sur la machine host1
+a 1-10 host2 // Les instances de 1 à 10 de a se lanceront sur host2
+
+b * host2 // Toutes les instances de b se lanceront sur host2
+
+a 11-* host3 // Toutes les instances passées 11 de b se lanceront sur host3

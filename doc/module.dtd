@@ -1,0 +1,9 @@
+<!ELEMENT module (name,input,output)>
+<!ELEMENT name (#PCDATA)>
+<!ELEMENT input (iport*)>
+<!ELEMENT output(oport*)>
+<!ELEMENT port EMPTY>
+<!ATTLIST iport name CDATA #REQUIRED>
+<!ATTLIST iport url CDATA #REQUIRED>
+<!ATTLIST oport name CDATA #REQUIRED>
+

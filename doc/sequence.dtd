@@ -1,0 +1,6 @@
+<!ELEMENT sequence (connect*,listen*)>
+<!ELEMENT connect EMPTY>
+<!ELEMENT listen EMPTY>
+<!ATTLIST connect port CDATA #REQUIRED>
+<!ATTLIST connect url CDATA #REQUIRED>
+<!ATTLIST listen port CDATA #REQUIRED>

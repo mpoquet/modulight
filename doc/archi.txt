@@ -1,0 +1,75 @@
+--- Principe de connexion des modules ---
+
+	--- master ---
+
+Lors de la phase de lancement de l'application, le Master va répartir les
+PendingConnection en sous-groupes, tels que :
+	- L'union de ces sous-groupes forme l'ensemble des PendingConnection initial
+	- Au sein d'un sous-groupe ne peuvent coexister des connexions vers le même port d'un même process
+
+Pour chaque sous-groupe S
+	Pour chaque connexion A:out->B:in de S
+		On ajoute un listen sur in à la fin des ordres de B
+		On ajoute un connect depuis out vers l'url du port correspondant à B:in à la fin des ordres de A
+
+	Pour chaque process impliqué dans S
+		Envoyer une séquence de connexions à réaliser
+
+	Attendre que tous les process aient effectué leurs connexions
+
+Pour chaque process de l'application
+	Envoyer l'ordre de lancement
+
+	--- module ---
+
+
+Le module décrit alors le protocole suivant :
+
+
+Attendre un message
+	Si c'est un ordre de lancement
+		Quitter cette fonction, lancer la méthode run
+
+//  Sinon, c'est une séquence de connexions
+	Pour chaque ordre de connexion
+		S'il est de type listen
+			Attendre une connexion sur le port indiqué
+		Sinon
+			Connecter le port indiqué à l'url indiquée
+
+	--- Modifications par rapport à l'architecture du prototype ---
+
+Les modules ne connaissent plus leur contexte.
+En effet, il serait dangereux de pouvoir se baser dessus pour créer des applications.
+
+----------------- COMMON -----------------
+
+ModuleDescription
+	name
+	map de ports d'entrée : nom du port -> url du port
+	vectors de noms de ports de sortie
+
+Connection
+	type : doit-on accepter une connexion ou bien en établir une ?
+	nom de notre port à connecter
+	id : url du port cible. Ce champ ne sera renseigné que si nous devons établir une connexion
+
+----------------- MASTER -----------------
+
+Master
+	vector de Process
+	vector de PendingConnection
+	Topology
+
+Process
+	ModuleDescription
+	instanceNumber
+	est-il autorisé à modifier la topologie du réseau ?
+
+PendingConnection
+	process A
+	process B
+	nom du port A
+	nom du port B
+
+----------------- MODULE -----------------

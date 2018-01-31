@@ -1,0 +1,104 @@
+Simplification du XML
+
+----------- Description des modules -----------
+
+Imaginons un module, ayant les attributs suivants :
+	nom : Ada
+	ports d'entrée :
+		a -> urlA
+		b -> urlB
+	ports de sortie :
+		out1
+		out2
+
+Sa description XML devrait être la suivante :
+
+<module name="Ada">
+	<iport name="a" url="urlA"/>
+	<iport name="b" url="urlB"/>
+	<oport name="out1"/>
+	<oport name="out2"/>
+</module>
+
+----------- Séquence de connexions -----------
+
+Soit la séquence de connexions suivante :
+	A0:out -> B0:in
+	B0:out -> A0:in
+
+	L'url de A0:in est urlA0
+	L'url de B0:in est urlB0
+
+A0 recevra la séquence suivante :
+	connecter son port out vers urlB0
+	accepter une connexion sur son port in venant de B0:out
+
+Ce qui donne en XML :
+
+<sequence>
+	<connect port="out" url="urlB0"/>
+	<listen port="in" source="B0:out"/>
+</sequence>
+
+ATTENTION, ajout de la source de la connexion pour pouvoir la supprimer dans le modèle dynamique
+
+------------           ------------
+------------ DYNAMIQUE ------------
+------------           ------------
+
+Un module peut demander la topologie actuelle du réseau au Master (message trivial).
+
+Le Master lui répond sous cette forme :
+
+<network>
+	<module name="tic" instance="0">
+		<iport name="in"/>
+		<oport name="out"/>
+	</module>
+	<module name="tac" instance="0">
+		<iport name="in" />
+		<oport name="out" />
+	</module>
+	<connection>
+		<source name="tic" instance="0" port="out"/>
+		<destination name="tac" instance="0" port="in"/>
+	</connection>
+</network>
+
+--- Envoi d'une requête Module->Master ---
+
+C'est une suite de requêtes simples. En voici un exemple :
+On veut lancer le module Ada
+On veut ensuite connecter Ada0:out vers Tac:in
+On veut supprimer la même connexion
+On veut supprimer le module Ada
+
+<dynamic_request>
+	<add_module path="ada"/>
+	<add_connection>
+		<source name="Ada" instance="0" port="out"/>
+		<destination name="Tac" instance="0" port="in"/>
+	</add_connection>
+	<remove_connection>
+		<source name="Ada" instance="0" port="out"/>
+		<destination name="Tac" instance="0" port="in"/>
+	</remove_connection>
+	<remove_module name="Ada" instance="0"/>
+</dynamic_request>
+
+--- Ordre Master->Module ---
+
+Le master peut ordonner plusieurs choses à un module. Prenons par exmeple :
+On veut ajouter une connexion sur le port in, depuis A0:out
+On veut ajouter une connexion sur le port out, vers urlA
+On veut supprimer la même connexion
+On veut supprimer une connexion venant de A0:out vers notre port in
+On veut supprimer le module
+
+<dynamic_order>
+	<listen port="in"/ source="A0:out">
+	<connect port="out" url="urlA"/>
+	<odisconnect port="out" url="urlA"/>
+	<idisconnect port="in" source="A0:out"/>
+	<destroy/>
+</dynamic_order>
